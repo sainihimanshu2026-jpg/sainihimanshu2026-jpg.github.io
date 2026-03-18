@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // MongoDB connection
-const mongoURI = 'mongodb://localhost:27017/portfolio'; // Change to your MongoDB URI
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/portfolio'; // Change to your MongoDB URI
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
