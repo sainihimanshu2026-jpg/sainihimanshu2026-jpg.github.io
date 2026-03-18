@@ -465,35 +465,8 @@
     <section id="skills" class="section bg-light">
         <div class="container">
             <h2 class="text-center mb-5" data-aos="fade-up">Skills</h2>
-            <div class="row">
-                <div class="col-md-6" data-aos="fade-up">
-                    <h4>HTML</h4>
-                    <div class="skill-bar">
-                        <div class="skill-fill skill-95"></div>
-                    </div>
-                    <h4>CSS</h4>
-                    <div class="skill-bar">
-                        <div class="skill-fill skill-90"></div>
-                    </div>
-                    <h4>Design</h4>
-                    <div class="skill-bar">
-                        <div class="skill-fill skill-85"></div>
-                    </div>
-                </div>
-                <div class="col-md-6" data-aos="fade-up">
-                    <h4>JavaScript</h4>
-                    <div class="skill-bar">
-                        <div class="skill-fill skill-80"></div>
-                    </div>
-                    <h4>UI/UX</h4>
-                    <div class="skill-bar">
-                        <div class="skill-fill skill-88"></div>
-                    </div>
-                    <h4>React</h4>
-                    <div class="skill-bar">
-                        <div class="skill-fill skill-75"></div>
-                    </div>
-                </div>
+            <div class="row" id="skills-container">
+                <!-- Skills will be loaded dynamically -->
             </div>
         </div>
     </section>
@@ -501,37 +474,8 @@
     <section id="certificates" class="section bg-light">
         <div class="container">
             <h2 class="text-center mb-5" data-aos="fade-up">Certificates</h2>
-            <div class="row">
-                <div class="col-md-4 mb-4" data-aos="fade-up">
-                    <div class="card certificate-card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">Web Development Certificate</h5>
-                            <p class="card-text">Certified in modern web development technologies including HTML, CSS, JavaScript, and responsive design.</p>
-                            <small class="text-muted">Issued by: Online Learning Platform</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up">
-                    <div class="card certificate-card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-code fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">Frontend Development</h5>
-                            <p class="card-text">Specialized certification in frontend technologies, frameworks, and best practices for modern web applications.</p>
-                            <small class="text-muted">Issued by: Tech Academy</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up">
-                    <div class="card certificate-card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-palette fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">UI/UX Design</h5>
-                            <p class="card-text">Professional certification in user interface and user experience design principles and tools.</p>
-                            <small class="text-muted">Issued by: Design Institute</small>
-                        </div>
-                    </div>
-                </div>
+            <div class="row" id="certificates-container">
+                <!-- Certificates will be loaded dynamically -->
             </div>
         </div>
     </section>
@@ -888,6 +832,101 @@
             .catch(error => {
                 messageDiv.innerHTML = '<div class="alert alert-danger">Login failed. Please try again.</div>';
             });
+        });
+
+        // Load skills dynamically
+        async function loadSkills() {
+            try {
+                const response = await fetch('/api/skills');
+                const skills = await response.json();
+                const container = document.getElementById('skills-container');
+                container.innerHTML = '';
+
+                if (skills.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-center"><p>No skills added yet.</p></div>';
+                    return;
+                }
+
+                const leftCol = document.createElement('div');
+                leftCol.className = 'col-md-6';
+                leftCol.setAttribute('data-aos', 'fade-up');
+
+                const rightCol = document.createElement('div');
+                rightCol.className = 'col-md-6';
+                rightCol.setAttribute('data-aos', 'fade-up');
+
+                skills.forEach((skill, index) => {
+                    const skillDiv = document.createElement('div');
+                    skillDiv.innerHTML = `
+                        <h4>${skill.name}</h4>
+                        <div class="skill-bar">
+                            <div class="skill-fill skill-${skill.percentage}"></div>
+                        </div>
+                    `;
+
+                    if (index % 2 === 0) {
+                        leftCol.appendChild(skillDiv);
+                    } else {
+                        rightCol.appendChild(skillDiv);
+                    }
+                });
+
+                container.appendChild(leftCol);
+                container.appendChild(rightCol);
+
+                // Refresh AOS animations
+                if (typeof AOS !== 'undefined') {
+                    AOS.refresh();
+                }
+            } catch (error) {
+                console.error('Error loading skills:', error);
+                document.getElementById('skills-container').innerHTML = '<div class="col-12 text-center"><p>Unable to load skills.</p></div>';
+            }
+        }
+
+        // Load certificates dynamically
+        async function loadCertificates() {
+            try {
+                const response = await fetch('/api/certificates');
+                const certificates = await response.json();
+                const container = document.getElementById('certificates-container');
+                container.innerHTML = '';
+
+                if (certificates.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-center"><p>No certificates added yet.</p></div>';
+                    return;
+                }
+
+                certificates.forEach(cert => {
+                    const certDiv = document.createElement('div');
+                    certDiv.className = 'col-md-4 mb-4';
+                    certDiv.setAttribute('data-aos', 'fade-up');
+                    certDiv.innerHTML = `
+                        <div class="card certificate-card">
+                            <div class="card-body text-center">
+                                <img src="${cert.imageUrl}" alt="${cert.title}" class="certificate-img mb-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+                                <h5 class="card-title">${cert.title}</h5>
+                                <p class="card-text">${cert.description}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(certDiv);
+                });
+
+                // Refresh AOS animations
+                if (typeof AOS !== 'undefined') {
+                    AOS.refresh();
+                }
+            } catch (error) {
+                console.error('Error loading certificates:', error);
+                document.getElementById('certificates-container').innerHTML = '<div class="col-12 text-center"><p>Unable to load certificates.</p></div>';
+            }
+        }
+
+        // Load dynamic content on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSkills();
+            loadCertificates();
         });
     </script>
 </body>
